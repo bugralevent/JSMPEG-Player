@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=320, initial-scale=1"/>
+	<title>jsmpeg streaming</title>
+    
+  <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.96.0/css/materialize.min.css">
+
+    <link rel="stylesheet" href="player.css">
+
+  <!-- Compiled and minified JavaScript -->
+     <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>   
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.96.0/js/materialize.min.js"></script>
+ 
+	<style type="text/css">
+		body {
+			background: #333;
+			text-align: center;
+		}
+		#videoCanvas {
+			/* Always stretch the canvas to 640x480, regardless of its
+			internal size. */
+			width: 640px;
+			height: 480px;
+		}
+	</style>
+</head>
+<body>
+	<!-- The Canvas size specified here is the "initial" internal resolution. jsmpeg will
+		change this internal resolution to whatever the source provides. The size the
+		canvas is displayed on the website is dictated by the CSS style.
+	-->
+	<div id="playerCont"><canvas id="videoCanvas" width="640" height="480">
+		<p>
+			Please use a browser that supports the Canvas Element, like
+			<a href="http://www.google.com/chrome">Chrome</a>,
+			<a href="http://www.mozilla.com/firefox/">Firefox</a>,
+			<a href="http://www.apple.com/safari/">Safari</a> or Internet Explorer 10
+		</p>
+	</canvas><center>
+        <div id="controls" class="card-panel blue" style="padding:0px;height:40px;width:640px;margin-top:-10px;">
+            <a href="#" onclick="player.play();" style="float:left;margin-left:20px;" class="black-text"><i class="mdi-av-play-circle-outline"></i></a>
+            <a href="#" onclick="player.pause();" style="float:left;margin-left:5px;" class="black-text"><i class="mdi-av-pause-circle-outline"></i></a>
+            <span id="playerDuration" style="float:left;margin-left:5px;margin-top:10px;" class="black-text"></span>
+        </div></center>
+    </div>
+	<script type="text/javascript" src="jsmpg.js"></script>
+    <script type="text/javascript" src="player.js"></script>
+	<script type="text/javascript">
+		// Show loading notice
+		var canvas = document.getElementById('videoCanvas');
+        var pCont = document.getElementById('playerCont');
+        var duration = document.getElementById('playerDuration');
+		var ctx = canvas.getContext('2d');
+		ctx.fillStyle = '#444';
+		ctx.fillText('Loading...', canvas.width/2-30, canvas.height/3);
+		// Setup the WebSocket connection and start the player
+		var client = new WebSocket( 'ws://localhost:9999/' );
+		var jsmpegObj = new jsmpeg(client, {canvas:canvas});
+        var player = new player(jsmpegObj,{container : pCont, pDuration: duration});
+        jsmpegObj.pause();
+        console.log(jsmpegObj.playing);
+        setTimeout(function(){
+            jsmpegObj.play(jsmpegObj.url);
+            console.log(jsmpegObj
+                        .playing);
+        },2000);
+	</script>
+</body>
+</html>
